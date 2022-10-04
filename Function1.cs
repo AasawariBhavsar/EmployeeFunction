@@ -15,12 +15,13 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using static System.Net.WebRequestMethods;
 using System.Formats.Asn1;
-using System.Globalization;
+using System.Globalization; 
 using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using CsvHelper;
 using System.Collections.Generic;
+using Azure;
 
 
 namespace EmployeeFunction
@@ -53,11 +54,8 @@ namespace EmployeeFunction
 
             if (await InputblobClient.ExistsAsync())
             {
-                var response = await InputblobClient.DownloadAsync();
-                var OutputcontainerClient = blobServiceClient.GetBlobContainerClient(OutputcontainerName);
-
-                BlobClient OutputblobClient = OutputcontainerClient.GetBlobClient(filename);
-                await OutputblobClient.UploadAsync(response.Value.Content);
+                //var response = await InputblobClient.DownloadAsync();
+               
 
                
 
@@ -67,6 +65,16 @@ namespace EmployeeFunction
                 log.LogInformation(filepath);
                 string feedData = System.IO.File.ReadAllText(filepath);
                 log.LogInformation("File data : ", feedData);
+
+                string jsondata=csvtoJson.ConvertCsvFileToJsonObject(filepath);
+                log.LogInformation(jsondata);
+
+                var OutputcontainerClient = blobServiceClient.GetBlobContainerClient(OutputcontainerName);
+
+                BlobClient OutputblobClient = OutputcontainerClient.GetBlobClient(filename.Split(".")[0]+".json");
+                await OutputblobClient.UploadAsync(jsondata);
+
+
 
 
 
