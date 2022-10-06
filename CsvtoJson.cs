@@ -10,12 +10,13 @@ using Azure;
 using Microsoft.Extensions.Logging;
 using Azure.Storage.Files.DataLake;
 using Azure.Storage.Files.DataLake.Models;
+using Azure.Storage.Blobs;
 
 namespace EmployeeFunction
 {
     public class CsvtoJson
     {
-        public string ConvertCsvFileToJsonObject(string path)
+        public Stream ConvertCsvFileToJsonObject(string path)
         {
             var csv = new List<string[]>();
             var lines = File.ReadAllLines(path);
@@ -36,7 +37,7 @@ namespace EmployeeFunction
                 listObjResult.Add(objResult);
             }
 
-            return JsonConvert.SerializeObject(listObjResult);
+            return new MemoryStream(Encoding.Default.GetBytes(JsonConvert.SerializeObject(listObjResult)));
         }
 
 
@@ -81,5 +82,42 @@ namespace EmployeeFunction
             }
 
         }
+
+
+        public void WriteJsonSerialisedMessageToFile(string filename,List<Dictionary<string, string>> jsonSerializedMessagesList, ILogger log)
+        {
+            string filepath = Path.Combine(Path.GetTempPath(), filename);
+            Stream Content = File.Open(filepath, FileMode.Open, FileAccess.ReadWrite);
+
+            using (StreamWriter writer = new StreamWriter(Content))
+            using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
+            {
+                JsonSerializer ser = new JsonSerializer();
+                ser.Serialize(jsonWriter, jsonSerializedMessagesList);
+                jsonWriter.Flush();
+                //file.Content.Close();   
+            }
+        }
+
+        public void LoadJson(string filepath)
+        {
+            //dynamic items;
+            //using (StreamReader r = new StreamReader(filepath))
+            //{
+            //    string json = r.ReadToEnd();
+            //    items = JsonConvert.DeserializeObject(json);
+            //}
+            //return items;
+            string json = File.ReadAllText(filepath);
+            Dictionary<string, string> json_Dictionary =JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            foreach (var item in json_Dictionary)
+            {
+                // parse here
+                
+            }
+        }
     }
+
+
+
 }

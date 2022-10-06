@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using CsvHelper;
 using System.Collections.Generic;
 using Azure;
+using JsonLogic.Net;
 
 
 namespace EmployeeFunction
@@ -65,19 +66,27 @@ namespace EmployeeFunction
                 log.LogInformation(filepath);
                 string feedData = System.IO.File.ReadAllText(filepath);
                 log.LogInformation("File data : ", feedData);
-
-                string jsondata=csvtoJson.ConvertCsvFileToJsonObject(filepath);
-                log.LogInformation(jsondata);
+                
+                Stream jsondata=csvtoJson.ConvertCsvFileToJsonObject(filepath);
+                //log.LogInformation(jsondata);
 
                 var OutputcontainerClient = blobServiceClient.GetBlobContainerClient(OutputcontainerName);
 
-                BlobClient OutputblobClient = OutputcontainerClient.GetBlobClient(filename.Split(".")[0]+".json");
+                string json_filename = $"{filename.Split(".")[0]}.json";
+                log.LogInformation(json_filename);
+
+                BlobClient OutputblobClient = OutputcontainerClient.GetBlobClient(json_filename);
                 await OutputblobClient.UploadAsync(jsondata);
 
 
 
 
+                csvtoJson.GetFileFromDataLake(OutputcontainerName, json_filename, log);
+                string json_filepath=Path.Combine(Path.GetTempPath(), json_filename);
+                dynamic employees=csvtoJson.LoadJson(json_filepath);
 
+                
+                
                 //using (var streamReader = new StreamReader(response.Value.Content))
                 //{
                 //    while (!streamReader.EndOfStream)

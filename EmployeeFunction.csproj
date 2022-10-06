@@ -6,6 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.11.0" />
     <PackageReference Include="CsvHelper" Version="28.0.1" />
+    <PackageReference Include="JsonLogic.Net" Version="1.1.11" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="5.0.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
